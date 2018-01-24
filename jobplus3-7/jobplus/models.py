@@ -8,12 +8,12 @@ db = SQLAlchemy()
 class Base(db.Model):
     __abstract__ = True
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.Datetime, default=datetime.utcnow, onupdate= datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate= datetime.utcnow)
 
 user_job = db.Table(
     'user_job',
-    db.Column('user_id', db.Integer, db.Foreignkey('user_id', ondelete='CASCADE')),
-    db.Column('job_id', db.Integer, db.Foreignkey('job_id', ondelete= 'CASCADE'))
+    db.Column('user_id', db.Integer, db.ForeignKey('user_id', ondelete='CASCADE')),
+    db.Column('job_id', db.Integer, db.ForeignKey('job_id', ondelete= 'CASCADE'))
     )
 
 class User(Base, UserMixin):
@@ -28,7 +28,8 @@ class User(Base, UserMixin):
     email = db.Column(db.String(64), unique=True, index=True, nullable=False)
     _password = db.Column('password', db.Stirng(256), nullable=False)
     role = db.Column(db.SmallInteger, default=R_USER)
-    resume = db.relationship('Job', secondary=user_job)
+    resume = db.relationship('Resume', uselist=False)
+    collect_jobs = db.relationship('Job', secondary=user_job)
     upload_resume_url = db.Column(db.String(64))
 
     def __repr__(self):
