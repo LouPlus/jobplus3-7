@@ -155,4 +155,5 @@ class Dilivery(Base):
     id = db.Column(db.Integer, primary_key=True)
     job.id = db.Column(db.Integer, db.ForeignKey('job.id', ondelete='SET NULL'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
+    status = db.Column(db.SmallInteger, default='S_WAITING')
     response = db.Column(db.String(256))
