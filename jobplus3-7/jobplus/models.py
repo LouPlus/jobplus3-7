@@ -26,7 +26,7 @@ class User(Base, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), unique=True, index=True, nullable=False)
     email = db.Column(db.String(64), unique=True, index=True, nullable=False)
-    _password = db.Column('password', db.Stirng(256), nullable=False)
+    _password = db.Column('password', db.String(256), nullable=False)
     role = db.Column(db.SmallInteger, default=R_USER)
     resume = db.relationship('Resume', uselist=False)
     collect_jobs = db.relationship('Job', secondary=user_job)
@@ -46,7 +46,7 @@ class User(Base, UserMixin):
     def check_password(self, password):
         return check_password_hash(self._password, password)
 
-    @porperty
+    @property
     def is_admin(self):
         return self.role == self.R_ADMIN
 
