@@ -8,11 +8,12 @@ front = Blueprint('front', __name__)
 
 @front.route('/')
 def index():
-    newest_jobs = Job.query.order_by(Job.created_at.desc()).limit(8)
+    newest_jobs = Job.query.order_by(Job.created_at.desc()).limit(9)
     newest_companies = User.query.filter(
         User.role==User.ROLE_COMPANY
     ).order_by(User.created_at.desc()).limit(8)
     return render_template('index.html',
+                           active='index',
                            newest_jobs=newest_jobs,
                            newest_companies=newest_companies
     )

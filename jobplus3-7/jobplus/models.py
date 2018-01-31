@@ -34,13 +34,20 @@ class User(Base, UserMixin):
     ROLE_ADMIN = 30
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32), unique=True, index=True, nullable=False)
+    name = db.Column(db.String(32), unique=True, index=True, nullable=False)
     email = db.Column(db.String(64), unique=True, index=True, nullable=False)
     _password = db.Column('password', db.String(256), nullable=False)
+    real_name = db.Column(db.String(20))
+    phone = db.Column(db.String(11))
+    work_years = db.Column(db.SmallInteger)
     role = db.Column(db.SmallInteger, default=ROLE_USER)
+    # 根据用户在网站上填写的内容生成的简历
     resume = db.relationship('Resume', uselist=False)
     collect_jobs = db.relationship('Job', secondary=user_job)
-    upload_resume_url = db.Column(db.String(64))
+    # 用户上传的简历或者简历链接
+    resume_url = db.Column(db.String(64))
+    # 企业用户详情
+    detail = db.relationship('CompanyDetail', uselist=False)
 
     def __repr__(self):
         return '<User:{}>'.format(self.username)
@@ -63,6 +70,10 @@ class User(Base, UserMixin):
     @property
     def is_company(self):
         return self.role == self.ROLE_COMPANY
+
+    @property
+    def is_staff(self):
+        return self.role == self.ROLE_STAFF
 
 
 class Resume(Base):
@@ -111,7 +122,7 @@ class EduExperience(Experience):
     resume = db.relationship('Resume', uselist=False)
 
 
-class ProjectExperice(Experience):
+class ProjectExperience(Experience):
     __tablename__ = 'preject_experience'
 
     name = db.Column(db.String(32), nullable=False)
@@ -123,16 +134,12 @@ class ProjectExperice(Experience):
     resume = db.relationship('Resume', uselist=False)
 
 
-class Company(Base):
-    __tablename__ = 'company'
+class CompanyDetail(Base):
+    __tablename__ = 'company_detail'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), nullable=False, index=True, unique=True)
-    slug = db.Column(db.String(24), nullable=False, index=True, unique=True)
-    logo = db.Column(db.String(64), nullable=False)
-    site = db.Column(db.String(64), nullable=False)
-    contact = db.Column(db.String(24), nullable=False)
-    email = db.Column(db.String(24), nullable=False)
+    logo = db.Column(db.String(256), nullable=False)
+    site = db.Column(db.String(128), nullable=False)
     location = db.Column(db.String(24), nullable=False)
     # 一句话描述
     description = db.Column(db.String(100))
@@ -146,11 +153,15 @@ class Company(Base):
     team_introduction = db.Column(db.String(256))
     # 公司福利，多个福利用分号隔开，最多 10 个
     welfares = db.Column(db.String(256))
+    # 公司领域
+    field = db.Column(db.String(128))
+    # 融资进度
+    finance_stage = db.Column(db.String(128))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
-    user = db.relationship('User', uselist=False, backref=db.backref('company', uselist=False))
+    user = db.relationship('User', uselist=False, backref=db.backref('company_detail', uselist=False))
 
     def __repr__(self):
-        return '<Company {}>'.format(self.name)
+        return '<CompanyDetail {}>'.format(self.id)
 
 
 class Job(Base):
@@ -169,12 +180,16 @@ class Job(Base):
     is_fulltime = db.Column(db.Boolean, default=True)
     # 是否在招聘
     is_open = db.Column(db.Boolean, default=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id', ondelete='CASCADE'))
-    company = db.relationship('Company', uselist=False)
+    company_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    company = db.relationship('User', uselist=False, backref=db.backref('jobs', lazy='dynamic'))
     views_count = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return '<Job {}>'.format(self.name)
+
+    @property
+    def tag_list(self):
+        return self.tags.split(',')
 
 
 class Dilivery(Base):
@@ -193,4 +208,3 @@ class Dilivery(Base):
     status = db.Column(db.SmallInteger, default=STATUS_WAITING)
     # 企业回应
     response = db.Column(db.String(256))
-

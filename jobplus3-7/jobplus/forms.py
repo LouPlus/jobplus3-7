@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, ValidationError, IntegerField, TextAreaField
-from wtforms.validators import db, User, CompanyDetail
+from wtforms.validators import Length, Email, EqualTo, Required 
+from jobplus.models import db, User, CompanyDetail
 
 class LoginForm(FlaskForm):
     email = StringField('邮箱', validators=[Required(), Email()])
